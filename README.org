@@ -1,0 +1,4 @@
+* A Bare-Bones Introductory MathOps Example to FPrime
+
+The official F' tutorial's MathOps example utilizes the ~Ref~ app which adds complexity for first-time users.
+This repository is a bare-bones implementation of the MathOps tutorial which only uses ports and components. 
