@@ -43,7 +43,9 @@ namespace MathOpsExample {
       //!
     ~MathSender() = default;
 
-    // Do the mathOpReqOut port invocation
+    //! Do the mathOpReqOut port invocation
+    // !
+    // ! Required to call this method from a main thread in the example
     void do_mathOpReq(NATIVE_INT_TYPE portNum,
 		      F32 lhs,
 		      const MathOpsExample::MathOp& op,

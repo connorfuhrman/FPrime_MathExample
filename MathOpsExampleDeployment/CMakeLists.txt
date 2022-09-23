@@ -21,10 +21,12 @@ foreach (subdir IN LISTS COMP_SUBDIRS)
 endforeach()
 
 # Register the F' Topology
+find_package(fmt REQUIRED)
 set(SOURCE_FILES
   "${CMAKE_CURRENT_SOURCE_DIR}/Top/Main.cpp")
 set(MOD_DEPS
-  ${PROJECT_NAME}/Top)
+  ${PROJECT_NAME}/Top
+  fmt::fmt)
 
 register_fprime_deployment()
 

@@ -6,10 +6,11 @@
 #include <MathOpsExampleDeployment/Top/MathOpsExampleTopologyAc.hpp>
 
 #include <csignal>
-#include <iostream>
 #include <thread>
 #include <functional>
 #include <random>
+
+#include <fmt/core.h>
 
 
 MathOpsExample::TopologyState state;
@@ -20,7 +21,7 @@ volatile sig_atomic_t running = 1;
 
 static void sighandler(int)
 {
-  std::cout << "\nGot end signal. Shutting down ..." << "\n";
+  fmt::print("\nGot end signal. Shutting down ...\n");
   MathOpsExample::teardown(state);
   running = 0;
 
@@ -35,10 +36,10 @@ static void blockDrv_th_entrypoint(const volatile sig_atomic_t& running,
 
 int main()
 {
-  std::cout << "Setting up topology..." << "\n";
+  fmt::print("Setting up topology...\n");
   state =  MathOpsExample::TopologyState();
   MathOpsExample::setup(state);
-  std::cout << "Topology initialized!" << "\n";
+  fmt::print("Topology initialized!\n");
 
   std::signal(SIGINT, sighandler);
   std::signal(SIGTERM, sighandler);
@@ -46,7 +47,7 @@ int main()
   // Launch thread to call the block driver
   // manually so the MathReceiver will flush
   // its queue
-  std::jthread blockDrv_th(blockDrv_th_entrypoint,
+  std::thread blockDrv_th(blockDrv_th_entrypoint,
 			  std::ref(running),
 			  [] () {
 			    MathOpsExample::blockDrv.callIsr();
@@ -63,7 +64,7 @@ int main()
   const auto make_random_op = [&op_distrib, &gen]() {
     return static_cast<MathOpsExample::MathOp::t>(op_distrib(gen));
   };
-
+  
   const auto print_req = [] (auto lhs, auto op, auto rhs) {
     std::string op_str;
     switch(op) {
@@ -72,9 +73,10 @@ int main()
     case MathOpsExample::MathOp::DIV: op_str = "/"; break;
     case MathOpsExample::MathOp::MUL: op_str = "*"; break;
     }
-    std::cout << "Requesting " << lhs << " " << op_str << " " << rhs << "\n";
+    fmt::print("Requesting {} {} {}\n", lhs, op_str, rhs);
   };
-  
+
+ 
   while (running)
   {
     auto op = make_random_op();
@@ -82,10 +84,12 @@ int main()
     auto rhs = val_distrib(gen);
     print_req(lhs, op, rhs);
     MathOpsExample::mathSender.do_mathOpReq(0, lhs, op, rhs);
-    Os::Task::delay(10000);
+    Os::Task::delay(1000);
   }
 
-  std::cout << "Exiting!!" << "\n";
+  blockDrv_th.join();
+
+  fmt::print("Exiting!!\n");
   
   
   return 0;

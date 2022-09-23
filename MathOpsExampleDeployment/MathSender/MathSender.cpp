@@ -8,7 +8,7 @@
 #include <MathOpsExampleDeployment/MathSender/MathSender.hpp>
 #include "Fw/Types/BasicTypes.hpp"
 
-#include <iostream>
+#include <fmt/core.h>
 
 namespace MathOpsExample {
 
@@ -44,7 +44,7 @@ namespace MathOpsExample {
         F32 result
     )
   {
-    std::cout << "Got math result " << result << std::endl;
+    fmt::print("Got math result {}\n", result);
   }
 
 } // end namespace MathOpsExample

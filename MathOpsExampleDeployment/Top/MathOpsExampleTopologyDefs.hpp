@@ -9,19 +9,7 @@ namespace MathOpsExample {
   }
 
   struct TopologyState {
-    TopologyState() : TopologyState("", 0)
-    {
-      
-    }
-
-    TopologyState(const char* _hostname, U32 _portNumber) :
-      hostName(_hostname), portNumber(_portNumber)
-    {
-
-    }
-
-    const char* hostName;
-    U32 portNumber;
+    TopologyState() = default;
   };
 }
 
