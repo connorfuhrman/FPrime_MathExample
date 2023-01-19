@@ -48,7 +48,7 @@ void MathReceiver ::init(const NATIVE_INT_TYPE queueDepth,
 			       [this](int portNum, F32 res) {
 				 this->mathOpRespOut_out(portNum, res);
 			       }));
-    
+
   // Then the file can be evaluted
   jl_module.safe_eval_file("/home/connorfuhrman/projects/fprime.jl/FPrime_MathExample/MathOpsExampleDeployment/MathReceiver/MathReceiver.jl");
   mathOpReqIn_handler_proxy = jl_module["mathOpReqIn_handler"];

@@ -36,6 +36,7 @@ static void blockDrv_th_entrypoint(const volatile sig_atomic_t& running,
 
 void setup_jl_types()
 {
+  
   jluna::Usertype<MathOpsExample_MathOp>::add_property<jluna::Float32> (
     "lhs",
     [](MathOpsExample_MathOp& in) -> jluna::Float32 { return in.lhs; });
