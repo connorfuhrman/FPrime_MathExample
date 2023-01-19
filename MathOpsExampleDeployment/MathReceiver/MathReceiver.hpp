@@ -9,6 +9,8 @@
 
 #include "MathOpsExampleDeployment/MathReceiver/MathReceiverComponentAc.hpp"
 
+#include <jluna.hpp>
+
 namespace MathOpsExample {
 
 class MathReceiver : public MathReceiverComponentBase {
@@ -33,26 +35,29 @@ public:
   //!
   ~MathReceiver() = default;
 
-  PRIVATE :
+PRIVATE:
 
-      // ----------------------------------------------------------------------
-      // Handler implementations for user-defined typed input ports
-      // ----------------------------------------------------------------------
+  // ----------------------------------------------------------------------
+  // Handler implementations for user-defined typed input ports
+  // ----------------------------------------------------------------------
 
-      //! Handler implementation for mathOpReqIn
-      //!
-      void
-      mathOpReqIn_handler(const NATIVE_INT_TYPE portNum, /*!< The port number*/
-                          F32 lhs,                       /*!< Left-hand-side of the operation */
-                          const MathOpsExample::MathOp &op, /*!< Operand */
-                          F32 rhs                           /*!< Right-hand-side of the operation */
-      );
+  //! Handler implementation for mathOpReqIn
+  //!
+  void
+  mathOpReqIn_handler(const NATIVE_INT_TYPE portNum, /*!< The port number*/
+		      F32 lhs, /*!< Left-hand-side of the operation */
+		      const MathOpsExample::MathOp &op, /*!< Operand */
+		      F32 rhs /*!< Right-hand-side of the operation */
+    );
 
   //! Handler implementation for schedIn
   //!
   void schedIn_handler(const NATIVE_INT_TYPE portNum, /*!< The port number*/
                        NATIVE_UINT_TYPE context       /*!< The call order */
   );
+
+  // proxies for dispatch to Julia
+  jluna::Proxy mathOpReqIn_handler_proxy;
 };
 
 } // end namespace MathOpsExample

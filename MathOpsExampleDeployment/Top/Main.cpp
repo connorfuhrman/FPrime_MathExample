@@ -12,6 +12,7 @@
 
 #include <fmt/core.h>
 
+#include "MathPorts_jl.hpp"
 
 MathOpsExample::TopologyState state;
 
@@ -33,10 +34,24 @@ static void blockDrv_th_entrypoint(const volatile sig_atomic_t& running,
   while(running) do_cycle();
 }
 
+void setup_jl_types()
+{
+  jluna::Usertype<MathOpsExample_MathOp>::add_property<jluna::Float32> (
+    "lhs",
+    [](MathOpsExample_MathOp& in) -> jluna::Float32 { return in.lhs; });
+
+  jluna::Usertype<MathOpsExample_MathOp>::add_property<jluna::Float32> (
+    "rhs",
+    [](MathOpsExample_MathOp& in) -> jluna::Float32 { return in.rhs; });
+
+  jluna::Usertype<MathOpsExample_MathOp>::implement();
+}
+
 
 int main()
 {
   fmt::print("Setting up topology...\n");
+  setup_jl_types();
   state =  MathOpsExample::TopologyState();
   MathOpsExample::setup(state);
   fmt::print("Topology initialized!\n");

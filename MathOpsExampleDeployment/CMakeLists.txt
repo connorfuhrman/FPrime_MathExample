@@ -7,6 +7,8 @@ project(MathOpsExampleDeployment VERSION 1.0.0 LANGUAGES C CXX)
 include("${FPRIME_FRAMEWORK_PATH}/cmake/FPrime.cmake")
 include("${FPRIME_FRAMEWORK_PATH}/cmake/FPrime-Code.cmake")
 
+set(CMAKE_CXX_STANDARD 20)
+
 
 # Add the components
 set(COMP_SUBDIRS
