@@ -12,7 +12,7 @@
 
 #include <fmt/core.h>
 
-#include "MathPorts_jl.hpp"
+#include <MathPorts_jl.hpp>
 
 MathOpsExample::TopologyState state;
 
@@ -35,17 +35,97 @@ static void blockDrv_th_entrypoint(const volatile sig_atomic_t& running,
 }
 
 void setup_jl_types()
-{
+{ 
+  // Allow (un)boxing of MathOpPort
+  jluna::Usertype<MathOpPort>::add_property<int> (
+    "portNum",
+    [](MathOpPort& in) -> int {
+      return in.portNum;
+    },
+    [](MathOpPort& out, int _portNum) {
+      out.portNum = _portNum;
+    });
   
-  jluna::Usertype<MathOpsExample_MathOp>::add_property<jluna::Float32> (
+  jluna::Usertype<MathOpPort>::add_property<F32> (
     "lhs",
-    [](MathOpsExample_MathOp& in) -> jluna::Float32 { return in.lhs; });
+    [](MathOpPort& in) -> F32 {
+      return in.lhs;
+    },
+    [](MathOpPort& out, F32 _lhs) -> void {
+      out.lhs = _lhs;
+    });
 
-  jluna::Usertype<MathOpsExample_MathOp>::add_property<jluna::Float32> (
+  jluna::Usertype<MathOpPort>::add_property<F32> (
     "rhs",
-    [](MathOpsExample_MathOp& in) -> jluna::Float32 { return in.rhs; });
+    [](MathOpPort& in) -> F32 {
+      return in.rhs;
+    },
+    [](MathOpPort& out, F32 _rhs) -> void {
+      out.rhs = _rhs;
+    });
 
-  jluna::Usertype<MathOpsExample_MathOp>::implement();
+  jluna::Usertype<MathOpPort>::add_property<int> (
+    "op",
+    [](MathOpPort& in) -> int { return static_cast<int>(in.op.e); },
+    [](MathOpPort& out, int _op) -> void {
+      out.op = static_cast<MathOpsExample::MathOp::t>(_op);
+    });
+
+  jluna::Usertype<MathOpPort>::implement();
+
+  // Provide Julia-side external constructor
+  jluna::Main.safe_eval(R"(
+    function MathOpPort(portNum::Int32, rhs::Float32, op::Int32, lhs::Float32)::MathOpPort
+       out = MathOpPort()
+       out.portNum = portNum
+       out.rhs = rhs
+       out.op = op
+       out.lhs = lhs
+
+       return out
+    end
+
+    precompile(MathOpPort, (Int32, Float32, Int32, Float32,))
+
+    )");
+  
+
+  // Allow (un)boxing of MathResPort
+  jluna::Usertype<MathResPort>::add_property<int> (
+    "portNum",
+    [](MathResPort& in) -> int {
+      return in.portNum;
+    },
+    [](MathResPort& out, int _portNum) {
+      out.portNum = _portNum;
+    });
+
+  jluna::Usertype<MathResPort>::add_property<float> (
+    "result",
+    [](MathResPort& in) -> float {
+      return in.result;
+    },
+    [](MathResPort& out, float _result) {
+      out.result = _result;
+    });
+
+  jluna::Usertype<MathResPort>::implement();
+
+  // Provide Julia-side external constructor
+  jluna::Main.safe_eval(R"(
+    function MathResPort(portNum::Int32, result::Float32)::MathResPort
+	out = MathResPort()
+	out.portNum = portNum
+	out.result = result
+
+	return out
+     end
+
+
+     precompile(MathResPort, (Int32, Float32, ))
+
+     )");
+  
 }
 
 

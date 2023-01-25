@@ -1,34 +1,41 @@
-# abstract type MathOp end
 
-# struct ADD <: MathOp end
-# struct SUB <: MathOp end
-# struct MUL <: MathOp end
-# struct DIV <: MathOp end
+module ThreadsafeUtils
 
+#= ThreadSafeUtils: thread-safe utility functions.
 
+This module provides various thread-safe functions for use within
+a F' component and/or topology. 
+=#
 
-function mathOpReqIn_handler(op::Main.MathOpsExample_MathOp)
-    mathOpRespOut_out(0, op.lhs + op.rhs)
+export println
+
+using Base.Threads: SpinLock
+
+const printlock = SpinLock()
+
+"""
+    println(str...)
+
+Threadsafe println function. Locks a `SpinLock` before calling
+Core.println(str...).
+"""
+function println(str::String)
+    lock(printlock) do
+        Core.println(str)
+    end
 end
 
 
-# precompile(mathOpReqIn_handler, (MathOpsExample_MathOp,))
+end
 
+# Type defined in jluna's Main module
+using Main: MathOpPort, MathResPort
 
-# // in namespace scope
-# struct RGBA
-# {
-#     float _red;
-#     float _green;
-#     float _blue;
-#     float _alpha;
+function mathOpReqIn_handler(arg::MathOpPort)
+    # ThreadsafeUtils.println("typeof(op) = $(typeof(op))")
+
+    dispatch_op = Dict(0 => +, 1 => -, 2 => *, 3 => /)
+    f = dispatch_op[arg.op]
     
-#     RGBA(float r, float g, float b)
-#         : _red(r), _green(g), _blue(b), _alpha(1)
-#     {}
-    
-#     RGBA() 
-#         : _red(0), _green(0), _blue(0), _alpha(1)
-#     {}
-# };
-# set_usertype_enabled(RGBA);
+    mathOpRespOut_out(MathResPort(Int32(0), f(arg.lhs, arg.rhs)))
+end
